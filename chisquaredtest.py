@@ -12,10 +12,10 @@ loansData.dropna(inplace=True)
 freq = collections.Counter(loansData['Open.CREDIT.Lines'])
 
 # Plots a bar chart to show frequency of number of lines
-# plt.figure()
-# plt.bar(freq.keys(), freq.values(), width=1)
-# plt.show()
+plt.figure()
+plt.bar(freq.keys(), freq.values(), width=1)
+plt.show()
 
 chi, p = stats.chisquare(freq.values())
 
-# print(chi, p)
+print('Chi and p : {0}, {1}'.format(chi, p))
