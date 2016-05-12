@@ -18,4 +18,4 @@ plt.show()
 
 chi, p = stats.chisquare(freq.values())
 
-print('Chi and p : {0}, {1}'.format(chi, p))
+print('Chi: {0}'.format(chi))
