@@ -8,14 +8,20 @@ loansData = pd.read_csv('https://github.com/Thinkful-Ed/curric-data-001-data-set
 # Remove rows with null values
 loansData.dropna(inplace=True)
 
+loansData['Open.CREDIT.Lines'] = loansData['Open.CREDIT.Lines'].astype(int)
 # Gets counts of observations for each number of credit lines 
 freq = collections.Counter(loansData['Open.CREDIT.Lines'])
+
+# print(freq)
+# print(type(loansData['Open.CREDIT.Lines']))
+
 
 # Plots a bar chart to show frequency of number of lines
 plt.figure()
 plt.bar(freq.keys(), freq.values(), width=1)
 plt.show()
 
+
 chi, p = stats.chisquare(freq.values())
 
-print('Chi: {0}'.format(chi))
+# print('Chi and p: {0}, {1}'.format(chi, p))

@@ -14,10 +14,21 @@ loansData['InterestRate'] = loansData['Interest.Rate'].map(lambda x: round(float
 # This returns monthly income as ints instead of floats (needs to remove NaNs first)
 loansData['Monthly.Income'] = loansData[['Monthly.Income']].fillna(0.0).astype(int)
 loansData['Annual.Inc'] = loansData['Monthly.Income'].map(lambda x: x*12)
+loansData['Fico.Score'] = loansData['FICO.Range'].map(lambda x: (x.split('-')))
+loansData['Fico.Score'] = loansData['Fico.Score'].map(lambda x: int(min(x)))
 
 # New Variables
 intrate = loansData['InterestRate']
-annual_inc = loansData['Annual.Inc']
+# intrate[np.isnan(intrate)] = 0
+
+loanamt = loansData['Amount.Requested']
+# loanamt[np.isnan(loanamt)] = 0
+
+fico = loansData['Fico.Score']
+# fico[np.isnan(fico)] = 0
+
+loansData['log_income'] = np.log1p(loansData['Annual.Inc'])
+annual_inc = loansData['log_income']
 
 
 # # Scatterplot matrix to see how variables correlate with each other 
@@ -37,16 +48,17 @@ annual_inc = loansData['Annual.Inc']
 # # There does not appear to be a correlation between these variables 
 # print(f.summary())
 
-## Add home ownership to the model - does this affect significance of coeff in the original model?
+
+
+# Add home ownership to the model - does this affect significance of coeff in the original model?
 
 # Encode Home Ownership as a numeric variable, rename column
 loansData['HomeOwnership'] = pd.Categorical(loansData['Home.Ownership']).codes
-# home_own = loansData['HomeOwnership']
+home_own = loansData['HomeOwnership']
 
 # X = loansData.copy()
 # y = X.pop('InterestRate')
 # check = y.groupby(X.HomeOwnership).mean() # --> allows you to see how interest rate varies on avg based on home ownership status
-
 
 loansData['Intercept'] = 1.0
 
@@ -56,48 +68,47 @@ ind_vars = ['Annual.Inc', 'HomeOwnership', 'Intercept']
 max_inc = max(loansData['Annual.Inc'])
 min_inc = min(loansData['Annual.Inc'])
 
-
 # fit OLS on categorical variables 
 def short_summary(est):
     return est.summary().tables[1]
 
 # fit OLS on categorical variables 
-est = smf.ols(formula='InterestRate ~ C(HomeOwnership)', data=loansData).fit()
+est = smf.ols(formula='InterestRate ~ log_income + C(HomeOwnership)', data=loansData).fit()
 coeff = est.params
-print(short_summary(est))
+# print(short_summary(est)) # --> gives abbreviated version of summary
+# print(est.summary())
 
-# def calc_interest_rate(coeff, annual_inc, home_own):
-# 	return coeff['Intercept'] + coeff['Annual.Inc']*annual_inc + coeff['HomeOwnership']*home_own
+def calc_interest_rate(coeff, annual_inc, home_own):
+	return coeff['Intercept'] + coeff['Annual.Inc']*annual_inc + coeff['HomeOwnership']*home_own
 
-# p = calc_interest_rate(coeff, 50000, home_own=0)
-# print(p)
+p = calc_interest_rate(coeff, annual_inc, home_own=0)
+print(p)
 
-x = np.linspace(min_inc, max_inc, 10000)
-# p0 = log_function(coeff, x, home_own=0)
-# p1 = log_function(coeff, x, home_own=1)
-# p2 = log_function(coeff, x, home_own=2)
-# p3 = log_function(coeff, x, home_own=3)
-# p4 = log_function(coeff, x, home_own=4)
+# x = np.linspace(min_inc, max_inc, 10000)
+# # p0 = log_function(coeff, x, home_own=0)
+# # p1 = log_function(coeff, x, home_own=1)
+# # p2 = log_function(coeff, x, home_own=2)
+# # p3 = log_function(coeff, x, home_own=3)
+# # p4 = log_function(coeff, x, home_own=4)
 
-print(est.params)
+# print(est.params)
 
-plt.figure()
-plt.xlabel('Annual Income')
-plt.ylabel('Interest Rate')
-# plt.plot(x, est.params[0] + est.params[1] * x + est.params[2] * 0, 'r')
-# plt.plot(x, est.params[0] + est.params[1] * x + est.params[2] * 1, 'g')
-# plt.plot(x, est.params[0] + est.params[1] * x + est.params[2] * 2, 'b')
-# plt.plot(x, est.params[0] + est.params[1] * x + est.params[2] * 3, 'k')
-# plt.plot(x, est.params[0] + est.params[1] * x + est.params[2] * 4, 'm')
-# plt.plot(x, p0, 'g', x, p1, 'b', x, p2, 'r', x, p3, 'k', x, p4, 'm')
-plt.show()
-
-
-
+# plt.figure()
+# plt.xlabel('Annual Income')
+# plt.ylabel('Interest Rate')
+# # plt.plot(x, est.params[0] + est.params[1] * x + est.params[2] * 0, 'r')
+# # plt.plot(x, est.params[0] + est.params[1] * x + est.params[2] * 1, 'g')
+# # plt.plot(x, est.params[0] + est.params[1] * x + est.params[2] * 2, 'b')
+# # plt.plot(x, est.params[0] + est.params[1] * x + est.params[2] * 3, 'k')
+# # plt.plot(x, est.params[0] + est.params[1] * x + est.params[2] * 4, 'm')
+# # plt.plot(x, p0, 'g', x, p1, 'b', x, p2, 'r', x, p3, 'k', x, p4, 'm')
+# plt.show()
 
 
+# # Try to add the interaction of home ownership and incomes as a term. How does this impact the new model?
+# ## multiply 2 variables together, then in code it will consider it as an interaction(?) check on this. 
 
-# Try to add the interaction of home ownership and incomes as a term. How does this impact the new model?
 
 
+# # Ref: https://github.com/shubhabrataroy/Thinkful/blob/master/multivariate.py
 
