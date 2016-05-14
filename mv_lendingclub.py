@@ -78,7 +78,12 @@ coeff = est.params
 # print(short_summary(est)) # --> gives abbreviated version of summary
 # print(est.summary())
 
+# This isn't going to work because you're returning many interest rates - doing many column based things on different dataframes
+# Need to input individual values
+# Either write a map function or a loop 
+# Goal is to get interest rate for 1 home ownership case and for 1 annual income case -- but I"m passing in entire column 
 def calc_interest_rate(coeff, annual_inc, home_own):
+	# create a list outside the for loop 
 	return coeff['Intercept'] + coeff['Annual.Inc']*annual_inc + coeff['HomeOwnership']*home_own
 
 p = calc_interest_rate(coeff, annual_inc, home_own=0)
