@@ -21,7 +21,8 @@ plt.figure()
 plt.bar(freq.keys(), freq.values(), width=1)
 plt.show()
 
+# chisquared function doesn't work on a dictionary object
+# so you instead need to convert it to a list
+chi, p = stats.chisquare(list(freq.values()))
 
-chi, p = stats.chisquare(freq.values())
-
-# print('Chi and p: {0}, {1}'.format(chi, p))
+print('Chi and p: {0}, {1}'.format(chi, p))
